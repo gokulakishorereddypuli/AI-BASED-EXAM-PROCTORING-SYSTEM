@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Results</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+  <h2>Student Data</h2>
+  <p>GPREC</p>   
+  <a href="/dashboard">Goback</a>         
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Profile</th>
+        <th>Roll Number</th>
+        <th>Student name</th>
+        <th>Father name</th>
+        <th>Mother name</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for i in data %}
+        <tr>
+        <td><img src="ImagesAttendance/{{i[0]}}.jpg" width="100px" height="100px"></td>
+        <td>{{i[0]}}</td>
+        <td>{{i[1]}}</td>
+        <td>{{i[2]}}</td>
+        <td>{{i[3]}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+  </table>
+</div>
+</body>
+</html>
