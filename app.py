@@ -28,6 +28,9 @@ images = []
 classNames = []
 myList = os.listdir(path)
 name_global=''
+
+fraud=""
+
 print(myList)
 for cl in myList:
     curImg = cv2.imread(f'{path}/{cl}')
@@ -55,9 +58,22 @@ def markAttendance(name):
             dtString = now.strftime('%H:%M:%S')
             f.writelines(f'\n{name},{dtString}')
 
+def postAnalysis(name):
+    with open('postanalysis.csv','r+') as f:
+        myDataList = f.readlines()
+        nameList = []
+    
+        for line in myDataList:
+            entry = line.split(',')
+            nameList.append(entry[0])
+        if name not in nameList:
+            global fraud
+            f.writelines(f'\n RollNo - {name},{fraud}')
 
 encodeListKnown = findEncodings(images)
 print('Encoding Complete')
+
+
 def verify_face():
     cap = cv2.VideoCapture(0)
     while True:
@@ -115,9 +131,13 @@ def generate_frames():
         face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
         faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
+        global fraud
         if len(faces) == 0:
             cv2.putText(frame, "Face Not Detected!", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-        
+            now = datetime.now()
+            dtS = now.strftime('%H:%M:%S')
+            fraud=fraud+"\nFace Not Detected! - "+dtS
+            print(fraud)
         for (x, y, w, h) in faces:
             roi_gray = gray[y:y + h, x:x + w]
             eyes = cv2.Canny(roi_gray, 100, 200)
@@ -145,7 +165,10 @@ def generate_frames():
 
             if blink_counter > max_blink_count or noise_detected:
                 cv2.putText(frame, "Suspicious Activity Detected!", (20, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-        
+                now = datetime.now()
+                dtS = now.strftime('%H:%M:%S')
+                fraud=fraud+"\nSuspicious Activity Detected! - "+dtS
+                print(fraud)
         ret, buffer = cv2.imencode('.jpg', frame)
         if not ret:
             continue
@@ -206,13 +229,13 @@ def protected(filename):
             datac.append(list(i))
         cursor.close()
         if(len(datac)>0):
-            return "<h2 style='color:red;'>You Have Already Taken the Test</h2> <br> <a href='/home'>Go Back</a>"
+            return "<h2 style='color:red;'>You have already taken the test.</h2> <br> <a href='/home'>Go Back</a>"
         
         elif 'rollno' in session and session['rollno']==name_global:
             print(name_global)
             return send_from_directory('protected', filename)
         elif 'rollno' in session and session['rollno']!=name_global :
-            return "<h2 style='color:red;'>User is Not Matched with our DataBase</h2> <a href='/dashboard'>Goback</a>"
+            return "<h2 style='color:red;'>We couldn't find a match for your information in our database.</h2> <a href='/dashboard'>Goback</a>"
     else :
         return send_from_directory('protected', filename)
 
@@ -233,6 +256,7 @@ def logout():
 def result():
     data = request.get_json()
     print(data['percentage'])
+    postAnalysis(session.get('rollno'))
     try:
         cursor = connection.cursor()
         sql='''insert into `quiz_results`(rollno,marks)values(%s,%s)'''
