@@ -12,8 +12,6 @@ import face_recognition
 import os
 from datetime import datetime
 
-
-
 app = Flask(__name__)
 app.secret_key = 'bsddsjvGVVJ876483jVJV'
 connection = pymysql.connect(host='localhost',
