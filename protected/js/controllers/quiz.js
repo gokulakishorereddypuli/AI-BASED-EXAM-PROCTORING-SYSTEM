@@ -15,8 +15,7 @@
         vm.finaliseAnswers = finaliseAnswers; 
         vm.activeQuestion = 0; 
         vm.error = false;
-        vm.finalise = false; 
-                             
+        vm.finalise = false;              
 
         var numQuestionsAnswered = 0; 
 
