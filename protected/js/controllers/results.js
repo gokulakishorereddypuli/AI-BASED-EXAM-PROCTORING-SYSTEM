@@ -31,14 +31,13 @@
             $http.post(url, postData)
                 .then(function(response) {
                     console.log('Data sent successfully:', response.data);
-                    console.log("-------------------------------------success");
+                    console.log("success");
                 }, function(error) {
                     console.error('Error sending data:', error);
-                    console.log("-------------------------------------erroe");
+                    console.log("error");
                 });
                 
             }
-
             return quizMetrics.numCorrect / DataService.quizQuestions.length * 100;
         }
 
