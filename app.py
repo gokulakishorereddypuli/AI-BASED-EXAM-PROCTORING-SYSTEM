@@ -11,7 +11,7 @@ import numpy as np
 import face_recognition
 import os
 from datetime import datetime
-
+#import datetime
 app = Flask(__name__)
 app.secret_key = 'bsddsjvGVVJ876483jVJV'
 connection = pymysql.connect(host='localhost',
@@ -44,6 +44,7 @@ def findEncodings(images):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         encode = face_recognition.face_encodings(img)[0]
         encodeList.append(encode)
+
     return encodeList
  
 def markAttendance(name):
@@ -62,13 +63,15 @@ def postAnalysis(name):
     with open('postanalysis.csv','r+') as f:
         myDataList = f.readlines()
         nameList = []
-    
         for line in myDataList:
             entry = line.split(',')
             nameList.append(entry[0])
         if name not in nameList:
             global fraud
-            f.writelines(f'\n RollNo - {name},{fraud}')
+            l=fraud.split("$")
+            s=set(l)
+            fraud='\n'.join(list(s))
+            f.writelines(f'\n RollNo - {name},\n{fraud}')
 
 encodeListKnown = findEncodings(images)
 print('Encoding Complete')
@@ -109,6 +112,7 @@ def verify_face():
         img = buffer.tobytes()
         yield (b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
+        
 
 def generate_frames():
     max_blink_count = 5  
@@ -136,7 +140,7 @@ def generate_frames():
             cv2.putText(frame, "Face Not Detected!", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
             now = datetime.now()
             dtS = now.strftime('%H:%M:%S')
-            fraud=fraud+"\nFace Not Detected! - "+dtS
+            fraud=fraud+" Face Not Detected! - "+dtS+" $ "
             print(fraud)
         for (x, y, w, h) in faces:
             roi_gray = gray[y:y + h, x:x + w]
@@ -167,7 +171,7 @@ def generate_frames():
                 cv2.putText(frame, "Suspicious Activity Detected!", (20, 80), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
                 now = datetime.now()
                 dtS = now.strftime('%H:%M:%S')
-                fraud=fraud+"\nSuspicious Activity Detected! - "+dtS
+                fraud=fraud+" Suspicious Activity Detected! - "+dtS+" $ "
                 print(fraud)
         ret, buffer = cv2.imencode('.jpg', frame)
         if not ret:
